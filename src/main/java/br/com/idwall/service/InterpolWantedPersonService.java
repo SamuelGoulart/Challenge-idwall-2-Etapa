@@ -5,6 +5,9 @@ import java.util.List;
 import br.com.idwall.domain.InterpolPerson;
 
 public interface InterpolWantedPersonService {
-    abstract List<InterpolPerson> getAll();
-
+    List<InterpolPerson> getAll();
+    
+    InterpolPerson create(InterpolPerson person);
+    
+    InterpolPerson getById(int id);
 }

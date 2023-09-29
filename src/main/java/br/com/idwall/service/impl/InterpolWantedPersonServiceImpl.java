@@ -1,5 +1,6 @@
 package br.com.idwall.service.impl;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,17 @@ public class InterpolWantedPersonServiceImpl implements InterpolWantedPersonServ
 	
 	public InterpolPerson create(InterpolPerson person) {
 		return interpolWantedPersonRepository.save(person);
+	}
+	
+
+	public InterpolPerson getById(int id) {
+		Optional<InterpolPerson> optionalUser = interpolWantedPersonRepository.findById(id);
+
+		if (!optionalUser.isPresent()) {
+			throw new GenericException(Exceptions.WANTED_BY_INTERPOL_NOT_FOUND);
+		}
+
+		return optionalUser.get();
 	}
 
 }

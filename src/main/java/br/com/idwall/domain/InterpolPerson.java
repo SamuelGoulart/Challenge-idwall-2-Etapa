@@ -32,8 +32,6 @@ public class InterpolPerson {
     private int personId;
 
     @Column(name = "name", nullable = false)
-    @NotEmpty(message = "O campo name é obrigatório")
-    @Size(min = 3, max = 100)
     private String name;
 
     @Column(name = "sex")

@@ -13,6 +13,7 @@ import br.com.idwall.service.impl.InterpolWantedPersonServiceImpl;
 
 import org.jsoup.nodes.Document;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -27,19 +28,20 @@ public class InterpolScheduler {
 	@Autowired
 	private InterpolWantedPersonServiceImpl interpolWantedPersonServiceImpl;
 
-	@Scheduled(cron = "*/10 * * * * *", zone = "America/Sao_Paulo")
-	public void GetAndUpdateDatabaseOfPeopleWantedByInterpol() {
+	private void GetAndUpdateDatabaseOfPeopleWantedByInterpol(String id) {
 
-		String url = "https://www.interpol.int/How-we-work/Notices/Red-Notices/View-Red-Notices#2023-61947";
-
+		String url = "https://www.interpol.int/How-we-work/Notices/Red-Notices/View-Red-Notices" + id;
+		
+		System.out.println(url);
+		
 		try {
 			Document doc = Jsoup.connect(url).get();
 
 			Element infosWrapper = doc.select(".wantedsingle__infosWrapper").first();
 
 			Element languageRow = infosWrapper.select("table tbody tr:contains(Language(s) spoken)").first();
-	        Element wrapperImg = doc.select(".redNoticeLargePhoto__wrapperImg").first();
-	        Element imgTag = wrapperImg.select("img").first();
+			Element wrapperImg = doc.select(".redNoticeLargePhoto__wrapperImg").first();
+			Element imgTag = wrapperImg.select("img").first();
 
 			Elements rows = infosWrapper.select("table tbody tr");
 
@@ -56,7 +58,6 @@ public class InterpolScheduler {
 			String dateOfBirth = infoMap.get("Date of birth");
 			String placeOfBirth = infoMap.get("Place of birth");
 			String nationality = infoMap.get("Nationality");
-			
 
 			System.out.println("Forename: " + forename);
 			System.out.println("Gender: " + gender);
@@ -64,26 +65,25 @@ public class InterpolScheduler {
 			System.out.println("Place of birth: " + placeOfBirth);
 			System.out.println("Nationality: " + nationality);
 
-
-			if (imgTag != null && languageRow != null && forename != null && gender != null && dateOfBirth != null && placeOfBirth != null
-					&& nationality != null) {
+			if (imgTag != null && languageRow != null && forename != null && gender != null && dateOfBirth != null
+					&& placeOfBirth != null && nationality != null) {
 
 				String sex = gender == "Male" ? "Masculino" : "Feminino";
-				
-	            String imageUrl = imgTag.attr("src");
+
+				String imageUrl = imgTag.attr("src");
 
 				Pattern pattern = Pattern.compile("(\\d{2}/\\d{2}/\\d{4}) \\((\\d+) years old\\)");
 				Matcher matcher = pattern.matcher(dateOfBirth);
 
 				if (!matcher.find())
 					throw new Error("ERROR");
-				
+
 				String dateOfBirthString = matcher.group(1);
 				int age = Integer.parseInt(matcher.group(2));
 
 				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 				Date dateOfBirthFormat = dateFormat.parse(dateOfBirthString);
-				
+
 				String languages = languageRow.select("strong").first().text();
 
 				InterpolPerson interpolPerson = new InterpolPerson();
@@ -101,10 +101,33 @@ public class InterpolScheduler {
 			} else {
 				System.out.println("Pelo menos um dos campos é nulo.");
 			}
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
+
+	@Scheduled(cron = "*/10 * * * * *", zone = "America/Sao_Paulo")
+	private void GetIdentifiersOfPersonsWantedByInterpol() {
+		String url = "https://www.interpol.int/How-we-work/Notices/Red-Notices/View-Red-Notices";
+
+		try {
+			Document document = Jsoup.connect(url).get();
+
+			System.out.println(document);
+
+			Elements aTags = document.select("div.redNoticeItem__text a");
+
+			for (Element aTag : aTags) {
+				String href = aTag.attr("href");
+                this.GetAndUpdateDatabaseOfPeopleWantedByInterpol(href);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+
 
 }
