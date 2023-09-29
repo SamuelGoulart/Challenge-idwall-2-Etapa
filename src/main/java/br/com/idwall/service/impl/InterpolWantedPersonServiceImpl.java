@@ -25,7 +25,10 @@ public class InterpolWantedPersonServiceImpl implements InterpolWantedPersonServ
 		}
 		
 		return persons;
-		
+	}
+	
+	public InterpolPerson create(InterpolPerson person) {
+		return interpolWantedPersonRepository.save(person);
 	}
 
 }

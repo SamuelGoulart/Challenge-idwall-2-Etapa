@@ -19,7 +19,7 @@ public class InterpolWantedPersonController {
 	private InterpolWantedPersonServiceImpl interpolWantedPersonServiceImpl;
 	
 	@GetMapping("/interpol/persons/wanted")
-	public ResponseEntity<ResponseBody> getAllUsers() {
+	public ResponseEntity<ResponseBody> getAllPersons() {
 		try {
 			
 			return HttpResponse.ok("Pessoas procuradas com sucesso", interpolWantedPersonServiceImpl.getAll());
