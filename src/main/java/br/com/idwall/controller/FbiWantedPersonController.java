@@ -24,7 +24,7 @@ public class FbiWantedPersonController {
 	public ResponseEntity<ResponseBody> getAllPersons() {
 		try {
 			
-			return HttpResponse.ok("Pessoas procuradas encontradas com sucesso", fbiWantedPersonServiceImpl.getAll());
+			return HttpResponse.ok("Pessoas procuradas pelo FBI listado com sucesso", fbiWantedPersonServiceImpl.getAll());
 		} catch (Exception error) {
 			switch (error.getMessage()) {
 			case Exceptions.FBI_WANTED_PERSON_NOT_FOUND:
@@ -38,7 +38,7 @@ public class FbiWantedPersonController {
 	@GetMapping("/fbi/persons/{id}/wanted")
 	public ResponseEntity<ResponseBody> getPersonById(@PathVariable int id) {
 		try {
-			return HttpResponse.ok("Usuário(a) listado com sucesso", fbiWantedPersonServiceImpl.getById(id));
+			return HttpResponse.ok("Pessoas procuradas pela FBI listado com sucesso", fbiWantedPersonServiceImpl.getById(id));
 		} catch (Exception error) {
 			switch (error.getMessage()) {
 			case Exceptions.WANTED_BY_FBI_NOT_FOUND:

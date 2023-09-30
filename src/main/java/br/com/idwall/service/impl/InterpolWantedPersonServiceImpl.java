@@ -3,6 +3,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 
 import br.com.idwall.domain.InterpolPerson;
@@ -41,6 +42,14 @@ public class InterpolWantedPersonServiceImpl implements InterpolWantedPersonServ
 		}
 
 		return optionalUser.get();
+	}
+	
+	public Optional<InterpolPerson> getByName(String name) {
+		return Optional.ofNullable(interpolWantedPersonRepository.findByName(name));
+	}
+	
+	public void updateById(InterpolPerson person) {
+		 interpolWantedPersonRepository.save(person);
 	}
 
 }

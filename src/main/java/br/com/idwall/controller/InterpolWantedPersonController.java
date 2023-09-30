@@ -23,7 +23,7 @@ public class InterpolWantedPersonController {
 	public ResponseEntity<ResponseBody> getAllPersons() {
 		try {
 			
-			return HttpResponse.ok("Pessoas procuradas econtradas com sucesso", interpolWantedPersonServiceImpl.getAll());
+			return HttpResponse.ok("Pessoas procuradas pela Interpol listado com sucesso", interpolWantedPersonServiceImpl.getAll());
 		} catch (Exception error) {
 			switch (error.getMessage()) {
 			case Exceptions.INTERPOL_WANTED_PERSON_NOT_FOUND:
@@ -37,7 +37,7 @@ public class InterpolWantedPersonController {
 	@GetMapping("/interpol/persons/{id}/wanted")
 	public ResponseEntity<ResponseBody> getPersonById(@PathVariable int id) {
 		try {
-			return HttpResponse.ok("Usuário(a) listado com sucesso", interpolWantedPersonServiceImpl.getById(id));
+			return HttpResponse.ok("Pessoas procuradas pelo Interpol listado com sucesso", interpolWantedPersonServiceImpl.getById(id));
 		} catch (Exception error) {
 			switch (error.getMessage()) {
 			case Exceptions.WANTED_BY_INTERPOL_NOT_FOUND:

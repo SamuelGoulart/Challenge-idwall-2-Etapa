@@ -43,9 +43,6 @@ public class FbiPerson {
     @Column(name = "age")
     private int age;
 
-    @Column(name = "nationality", length = 50)
-    private String nationality;
-
     @Column(name = "colored_person", length = 50)
     private String coloredPerson;
 
@@ -57,9 +54,6 @@ public class FbiPerson {
 
     @Column(name = "place_of_birth", length = 100)
     private String placeOfBirth;
-
-    @Column(name = "languages", length = 100)
-    private String languages;
 
     @Column(name = "eyes", length = 80)
     private String eyes;
