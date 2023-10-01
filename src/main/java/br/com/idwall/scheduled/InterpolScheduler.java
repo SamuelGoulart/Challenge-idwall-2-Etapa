@@ -20,6 +20,7 @@ import br.com.idwall.util.DateAndAgeUtil;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -88,7 +89,7 @@ public class InterpolScheduler {
 				String nationality = infoMap.get("Nationality");
 
 				int age = DateAndAgeUtil.extractAge(dateOfBirth);
-				Date dateOfBirthFormat = DateAndAgeUtil.extractDateOfBirth(dateOfBirth);
+				String dateOfBirthFormat = DateAndAgeUtil.extractDateOfBirth(dateOfBirth);
 
 				Optional<InterpolPerson> personWanted = interpolWantedPersonServiceImpl.getByName(forename);
 
@@ -97,10 +98,8 @@ public class InterpolScheduler {
 						&& age != 0) {
 					InterpolPerson person = personWanted.get();
 
-					String sex = gender != "Male" ? "Masculino" : "Feminino";
-
 					person.setName(forename);
-					person.setSex(sex);
+					person.setSex(gender);
 					person.setAge(age);
 					person.setDateOfBirth(dateOfBirthFormat);
 					person.setPlaceOfBirth(placeOfBirth);
@@ -115,11 +114,9 @@ public class InterpolScheduler {
 					if (srcValue != null && languages != null && forename != null && gender != null
 							&& dateOfBirthFormat != null && placeOfBirth != null && nationality != null && age != 0) {
 
-						String sex = gender.toString() != "Male" ? "Masculino" : "Feminino";
-						
 						InterpolPerson interpolPerson = new InterpolPerson();
 						interpolPerson.setName(forename);
-						interpolPerson.setSex(sex);
+						interpolPerson.setSex(gender);
 						interpolPerson.setAge(age);
 						interpolPerson.setDateOfBirth(dateOfBirthFormat);
 						interpolPerson.setPlaceOfBirth(placeOfBirth);
@@ -141,41 +138,56 @@ public class InterpolScheduler {
 		}
 	}
 
-//	@Scheduled(cron = "0 42 17 30 9 ?", zone = "America/Sao_Paulo")
-	@Scheduled(cron = "*/10 * * * * *", zone = "America/Sao_Paulo")
+	@Scheduled(cron = "0 57 22 30 9 ?", zone = "America/Sao_Paulo")
+//	@Scheduled(cron = "*/10 * * * * *", zone = "America/Sao_Paulo")
 	private void GetIdentifiersOfPersonsWantedByInterpol() {
-		String url = "https://www.interpol.int/How-we-work/Notices/Red-Notices/View-Red-Notices";
+	    String url = "https://www.interpol.int/How-we-work/Notices/Red-Notices/View-Red-Notices";
 
-		try (final WebClient webClient = new WebClient(BrowserVersion.CHROME)) {
-			webClient.setJavaScriptTimeout(40000);
-			webClient.getOptions().setJavaScriptEnabled(true);
-			webClient.getOptions().setCssEnabled(true);
+	    try (final WebClient webClient = new WebClient(BrowserVersion.CHROME)) {
+	        webClient.setJavaScriptTimeout(40000);
+	        webClient.getOptions().setJavaScriptEnabled(true);
+	        webClient.getOptions().setCssEnabled(true);
 
-			webClient.setJavaScriptErrorListener(new SilentJavaScriptErrorListener());
+	        webClient.setJavaScriptErrorListener(new SilentJavaScriptErrorListener());
 
-			HtmlPage page = webClient.getPage(url);
+	        HtmlPage page = webClient.getPage(url);
+	        
+	        while (true) {
+	            HtmlElement nextElement = page.getFirstByXPath("//li[contains(@class, 'nextElement') and not(contains(@class, 'hidden'))]//a");
+	            
+	            System.out.println(nextElement);
+	            if (nextElement != null) {
+	                List<HtmlElement> redNoticeItems = new ArrayList<>();
+	                int timeoutInSeconds = 10;
+	                int pollingInterval = 500;
+	                long startTime = System.currentTimeMillis();
 
-			List<HtmlElement> redNoticeItems = new ArrayList<>();
-			int timeoutInSeconds = 10;
-			int pollingInterval = 500;
-			long startTime = System.currentTimeMillis();
+	                while (redNoticeItems.isEmpty() && (System.currentTimeMillis() - startTime) < (timeoutInSeconds * 1000)) {
+	                    Thread.sleep(pollingInterval);
+	                    redNoticeItems = page.getByXPath("//div[contains(@class, 'redNoticeItem__text')]");
+	                }
 
-			while (redNoticeItems.isEmpty() && (System.currentTimeMillis() - startTime) < (timeoutInSeconds * 1000)) {
-				Thread.sleep(pollingInterval);
-				redNoticeItems = page.getByXPath("//div[contains(@class, 'redNoticeItem__text')]");
-			}
+	                for (HtmlElement redNoticeItem : redNoticeItems) {
+	                    List<HtmlElement> aTags = redNoticeItem.getElementsByTagName("a");
+	                    for (HtmlElement aTag : aTags) {
+	                        String href = aTag.getAttribute("href");
+	                        System.out.println(href);
+	                        this.GetAndUpdateDatabaseOfPeopleWantedByInterpol(href);
+	                    }
+	                }
+	                
+	                nextElement.click();
+	                Thread.sleep(2000); 
+	            } else {
+	                break;
+	            }
+	        }
 
-			for (HtmlElement redNoticeItem : redNoticeItems) {
-				List<HtmlElement> aTags = redNoticeItem.getElementsByTagName("a");
-				for (HtmlElement aTag : aTags) {
-					String href = aTag.getAttribute("href");
-					this.GetAndUpdateDatabaseOfPeopleWantedByInterpol(href);
-				}
-			}
-
-			webClient.close();
-		} catch (IOException | InterruptedException e) {
-			e.printStackTrace();
-		}
+	        webClient.close();
+	    } catch (IOException | InterruptedException e) {
+	        e.printStackTrace();
+	    }
 	}
+
+
 }
