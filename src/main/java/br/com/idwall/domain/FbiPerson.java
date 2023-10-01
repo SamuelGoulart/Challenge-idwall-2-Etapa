@@ -2,15 +2,7 @@ package br.com.idwall.domain;
 
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -57,15 +49,15 @@ public class FbiPerson {
 
     @Column(name = "eyes", length = 80)
     private String eyes;
-    
+
     @CreationTimestamp
-  	@Temporal(TemporalType.TIMESTAMP)
-  	@Column(name="created_at", nullable=false)
-      private Date createdAt;
-  	
-  	@Column(name="update_at")
-      private Date updateAt;
-  	
-  	@Column(name="delete_at")
-      private Date deleteAt;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created_at", nullable = false)
+    private Date createdAt;
+
+    @Column(name = "update_at")
+    private Date updateAt;
+
+    @Column(name = "delete_at")
+    private Date deleteAt;
 }

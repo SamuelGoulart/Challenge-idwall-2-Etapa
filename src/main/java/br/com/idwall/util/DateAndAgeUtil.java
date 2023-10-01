@@ -11,60 +11,74 @@ import java.time.Period;
 
 public class DateAndAgeUtil {
 	public static String extractDateOfBirth(String text) {
-	    Pattern datePattern = Pattern.compile("(\\d{2}/\\d{2}/\\d{4})");
-	    Matcher dateMatcher = datePattern.matcher(text);
+		Pattern datePattern = Pattern.compile("(\\d{2}/\\d{2}/\\d{4})");
+		Matcher dateMatcher = datePattern.matcher(text);
 
-	    if (dateMatcher.find()) {
-	        String dateStr = dateMatcher.group(1);
-	        SimpleDateFormat inputFormat = new SimpleDateFormat("dd/MM/yyyy");
-	        SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
-	        try {
-	            Date date = inputFormat.parse(dateStr);
-	            return outputFormat.format(date);
-	        } catch (ParseException e) {
-	            e.printStackTrace();
-	        }
-	    }
+		if (dateMatcher.find()) {
+			String dateStr = dateMatcher.group(1);
+			SimpleDateFormat inputFormat = new SimpleDateFormat("dd/MM/yyyy");
+			SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
+			try {
+				Date date = inputFormat.parse(dateStr);
+				return outputFormat.format(date);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
 
-	    return null;
+		return null;
 	}
 
-    public static int extractAge(String text) {
-        Pattern agePattern = Pattern.compile("(\\d+) years old");
-        Matcher ageMatcher = agePattern.matcher(text);
+	public static int extractAge(String text) {
+		Pattern agePattern = Pattern.compile("(\\d+) years old");
+		Matcher ageMatcher = agePattern.matcher(text);
 
-        if (ageMatcher.find()) {
-            return Integer.parseInt(ageMatcher.group(1));
-        }
+		if (ageMatcher.find()) {
+			return Integer.parseInt(ageMatcher.group(1));
+		}
 
-        return 0;
-    }
+		return 0;
+	}
 
-    public static int calculateAge(String birthDate) {
-        String[] parts = birthDate.split(" ");
-        String englishMonth = parts[0];
-        int day = Integer.parseInt(parts[1].replace(",", ""));
-        int year = Integer.parseInt(parts[2]);
+	public static int calculateAge(String birthDate) {
+		if (birthDate == null)
+			return 0;
 
-        String uppercasedMonth = englishMonth.toUpperCase();
+		String[] dateParts = birthDate.split(",");
 
-        Month month = null;
-        for (Month m : Month.values()) {
-            if (uppercasedMonth.equals(m.toString())) {
-                month = m;
-                break;
-            }
-        }
+		if (dateParts.length < 2) {
+			return -1;
+		}
 
-        if (month != null) {
-            LocalDate birthDateObj = LocalDate.of(year, month, day);
+		String[] monthAndYear = dateParts[0].trim().split(" ");
+		if (monthAndYear.length < 2) {
+			return -1;
+		}
 
-            LocalDate currentDate = LocalDate.now();
+		String englishMonth = monthAndYear[0].trim();
+		int day = Integer.parseInt(monthAndYear[1].trim());
+		int year = Integer.parseInt(dateParts[1].trim());
 
-            Period period = Period.between(birthDateObj, currentDate);
-            return period.getYears();
-        } else {
-            return -1;
-        }
-    }
+		String uppercasedMonth = englishMonth.toUpperCase();
+
+		Month month = null;
+		for (Month m : Month.values()) {
+			if (uppercasedMonth.equals(m.toString())) {
+				month = m;
+				break;
+			}
+		}
+
+		if (month != null) {
+			LocalDate birthDateObj = LocalDate.of(year, month, day);
+
+			LocalDate currentDate = LocalDate.now();
+
+			Period period = Period.between(birthDateObj, currentDate);
+			return period.getYears();
+		} else {
+			return -1;
+		}
+	}
+
 }

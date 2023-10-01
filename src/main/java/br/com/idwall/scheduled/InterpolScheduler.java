@@ -20,7 +20,6 @@ import br.com.idwall.util.DateAndAgeUtil;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -90,7 +89,9 @@ public class InterpolScheduler {
 
 				int age = DateAndAgeUtil.extractAge(dateOfBirth);
 				String dateOfBirthFormat = DateAndAgeUtil.extractDateOfBirth(dateOfBirth);
-
+				
+				System.out.println("Nome " + forename);
+				
 				Optional<InterpolPerson> personWanted = interpolWantedPersonServiceImpl.getByName(forename);
 
 				if (personWanted.isPresent() && srcValue != null && languages != null && forename != null
@@ -138,8 +139,7 @@ public class InterpolScheduler {
 		}
 	}
 
-	@Scheduled(cron = "0 57 22 30 9 ?", zone = "America/Sao_Paulo")
-//	@Scheduled(cron = "*/10 * * * * *", zone = "America/Sao_Paulo")
+	@Scheduled(cron = "*/10 * * * * *", zone = "America/Sao_Paulo")
 	private void GetIdentifiersOfPersonsWantedByInterpol() {
 	    String url = "https://www.interpol.int/How-we-work/Notices/Red-Notices/View-Red-Notices";
 
@@ -149,14 +149,15 @@ public class InterpolScheduler {
 	        webClient.getOptions().setCssEnabled(true);
 
 	        webClient.setJavaScriptErrorListener(new SilentJavaScriptErrorListener());
-
+	        
+	        webClient.getPage(url);
 	        HtmlPage page = webClient.getPage(url);
 	        
 	        while (true) {
 	            HtmlElement nextElement = page.getFirstByXPath("//li[contains(@class, 'nextElement') and not(contains(@class, 'hidden'))]//a");
 	            
-	            System.out.println(nextElement);
 	            if (nextElement != null) {
+	            	System.out.println("AQUII");
 	                List<HtmlElement> redNoticeItems = new ArrayList<>();
 	                int timeoutInSeconds = 10;
 	                int pollingInterval = 500;

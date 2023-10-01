@@ -42,7 +42,6 @@ public class HttpResponse {
 	public static ResponseEntity<ResponseBody> ok(String message, Object payload) {
 		ResponseBody responseBody = new ResponseBody();
 
-		
 		responseBody.setMessage(message);
 		responseBody.setError(new ArrayList<>());
 		responseBody.setPayload(payload);
